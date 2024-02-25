@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login with 2FA</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div id="loginPage">
+        <h1>Login</h1>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        <button id="loginButton">Login</button>
+    </div>
+
+    <div id="qrCodeContainer" style="display: none;">
+        <h2>Scan the QR Code</h2>
+        <img id="qrCodeImage" src="" alt="QR Code" width="300" height="300">
+        <input type="text" id="otp" name="otp" placeholder="Enter OTP" required><br><br>
+        <button id="verifyButton">Verify</button>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#loginButton").click(function() {
+                var username = $("#username").val();
+                var password = $("#password").val();
+                           
+                $.ajax({
+                    type: "POST",
+                    url: "https://jpa8nae5s5.execute-api.ap-south-1.amazonaws.com/dev/api/login",
+                    data: JSON.stringify({ username: username, password: password }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        $("#loginPage").hide();
+                        $("#qrCodeContainer").show();
+                        $("#qrCodeImage").attr("src", response.qrCodeUrl);
+                    },
+                    error: function(data) {
+                        alert("Error: " + data.responseText);
+                    }
+                });
+            });
+
+            $("#verifyButton").click(function() {
+                var otp = $("#otp").val();
+                var username = $("#username").val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "https://jpa8nae5s5.execute-api.ap-south-1.amazonaws.com/dev/api/validate",
+                    data: JSON.stringify({ username: username, otp: otp }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        alert(response.message);
+                    },
+                    error: function(data) {
+                        alert("Error: " + data.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
